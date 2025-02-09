@@ -1,0 +1,14 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    BaBeuloula\CdnPhpBundle\Proxy:
+        parent: 'BaBeuloula\CdnPhpBundle\AbstractHandler'
+        public: true
+
+    BaBeuloula\CdnPhpBundle\AbstractHandler: ~
+
+    BaBeuloula\CdnPhpBundle\Signer: ~
+
+    BaBeuloula\CdnPhpBundle\Twig\Extension\ProxyExtension: ~

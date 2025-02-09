@@ -1,0 +1,49 @@
+{
+    "name": "babeuloula/cdn-php-bundle",
+    "description": "A proxy between your application and CDN PHP",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "BaBeuloula\\CdnPhpBundle\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "BaBeuloula",
+            "email": "info@babeuloula.fr"
+        }
+    ],
+    "config": {
+        "sort-packages": true,
+        "audit": {
+            "abandoned": "report"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "require": {
+        "php": ">=8.1",
+        "symfony/cache": "^6.0|^7.0",
+        "symfony/config": "^6.0|^7.0",
+        "symfony/dependency-injection": "^6.0|^7.0",
+        "symfony/filesystem": "^6.0|^7.0",
+        "symfony/http-client": "^6.0|^7.0",
+        "symfony/http-foundation": "^6.0|^7.0",
+        "symfony/http-kernel": "^6.0|^7.0",
+        "symfony/routing": "^6.0|^7.0",
+        "twig/twig": "^3.0"
+    },
+    "require-dev": {
+        "babeuloula/phpcs": "^1.5",
+        "intervention/image": "^3.9",
+        "phpstan/phpstan": "^1.12",
+        "phpstan/phpstan-deprecation-rules": "^1.2",
+        "phpstan/phpstan-strict-rules": "^1.6",
+        "phpstan/phpstan-symfony": "^1.4"
+    },
+    "suggest": {
+        "intervention/image": "Needed to use InterventionImageFallback."
+    }
+}
