@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
-class CdnPhpBundleBundle extends AbstractBundle
+class CdnPhpBundle extends AbstractBundle
 {
     public function configure(DefinitionConfigurator $definition): void
     {
