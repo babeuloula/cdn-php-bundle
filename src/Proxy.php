@@ -59,6 +59,7 @@ final class Proxy extends AbstractHandler
 
             $copiedHeaders = [
                 'last-modified',
+                'expires',
                 'etag',
                 'cache-control',
                 'content-encoding',

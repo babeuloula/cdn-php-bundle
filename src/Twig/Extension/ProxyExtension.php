@@ -49,7 +49,7 @@ final class ProxyExtension extends AbstractExtension
 
         return $this->router->generate(
             $this->routeName,
-            [$this->routeParameter => $file],
+            [$this->routeParameter => ltrim($file, '/')],
             UrlGeneratorInterface::ABSOLUTE_URL,
         ) . $queryParams;
     }
