@@ -19,6 +19,7 @@ use BaBeuloula\CdnPhpBundle\FallbackHandler\FallbackHandlerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -74,6 +75,8 @@ final class Proxy extends AbstractHandler
 
                 $newResponse->headers->set($header, $response->getHeaders()[$header]);
             }
+
+            $newResponse->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, 'true');
         } catch (\Throwable $e) {
             if ($this->fallbackHandler instanceof FallbackHandlerInterface) {
                 return $this->fallbackHandler->response($file, $options, $headers);
