@@ -52,6 +52,7 @@ final class Proxy extends AbstractHandler
                 $this->cdnPhpUrl . $file . '?' . ($options?->buildQuery(false) ?? ''),
                 [
                     'headers' => $headers,
+                    'timeout' => 25,
                 ],
             );
 
