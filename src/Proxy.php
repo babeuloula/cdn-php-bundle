@@ -31,6 +31,7 @@ final class Proxy extends AbstractHandler
         private readonly Filesystem $filesystem,
         private readonly HttpClientInterface $client,
         private readonly string $cdnPhpUrl,
+        private readonly Signer $signer,
         private readonly ?FallbackHandlerInterface $fallbackHandler = null,
     ) {
         parent::__construct($assetsPath);
@@ -48,9 +49,17 @@ final class Proxy extends AbstractHandler
         $newResponse = new Response();
 
         try {
+            $queryParts = $options?->buildQuery(false) ?? '';
+
+            if (true === $this->signer->isCdnSigningEnabled()) {
+                $cdnSignature = $this->signer->signCdnRequest($file);
+                $signatureQuery = http_build_query($cdnSignature);
+                $queryParts = '' !== $queryParts ? $queryParts . '&' . $signatureQuery : $signatureQuery;
+            }
+
             $response = $this->client->request(
                 Request::METHOD_GET,
-                $this->cdnPhpUrl . $file . '?' . ($options?->buildQuery(false) ?? ''),
+                $this->cdnPhpUrl . $file . '?' . $queryParts,
                 [
                     'headers' => $headers,
                     'timeout' => 25,
@@ -67,6 +76,9 @@ final class Proxy extends AbstractHandler
                 'content-encoding',
                 'content-type',
                 'content-length',
+                'vary',
+                'x-content-type-options',
+                'x-dominant-color',
             ];
 
             foreach ($copiedHeaders as $header) {
