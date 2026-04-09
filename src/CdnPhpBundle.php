@@ -40,6 +40,8 @@ class CdnPhpBundle extends AbstractBundle
                 ->arrayNode('encrypter')->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('secret_key')->defaultNull()->end()
+                        ->scalarNode('cdn_secret_key')->defaultNull()->end()
+                        ->integerNode('cdn_expires_ttl')->defaultValue(3600)->end()
                     ->end()
                 ->end() // encrypter
                 ->arrayNode('twig')->isRequired()
@@ -70,6 +72,8 @@ class CdnPhpBundle extends AbstractBundle
             ->get(Signer::class)
                 ->public()
                 ->arg('$secretKey', $config['encrypter']['secret_key'])
+                ->arg('$cdnSecretKey', $config['encrypter']['cdn_secret_key'])
+                ->arg('$cdnExpiresTtl', $config['encrypter']['cdn_expires_ttl'])
         ;
 
         $container->services()

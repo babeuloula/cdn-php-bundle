@@ -65,10 +65,11 @@ final class InterventionImageFallbackHandler extends AbstractHandler implements 
 
                 $item->expiresAfter($this->cacheLifetime);
 
-                $encodedImage = (true === $this->supportWebp($headers))
-                    ? $image->toWebp()
-                    : $image->encodeByPath()
-                ;
+                $encodedImage = match (true) {
+                    $this->supportsAvif($headers) => $image->toAvif(),
+                    $this->supportsWebp($headers) => $image->toWebp(),
+                    default => $image->encodeByPath(),
+                };
 
                 return [
                     'content' => $encodedImage->toString(),
@@ -88,7 +89,17 @@ final class InterventionImageFallbackHandler extends AbstractHandler implements 
     }
 
     /** @param array<string, mixed> $headers */
-    private function supportWebp(array $headers): bool
+    private function supportsAvif(array $headers): bool
+    {
+        if (false === \array_key_exists('accept', $headers)) {
+            return false;
+        }
+
+        return str_contains($headers['accept'], 'image/avif');
+    }
+
+    /** @param array<string, mixed> $headers */
+    private function supportsWebp(array $headers): bool
     {
         if (false === \array_key_exists('accept', $headers)) {
             return false;
