@@ -26,7 +26,8 @@ final class ProxyExtension extends AbstractExtension
         private readonly RouterInterface $router,
         private readonly string $routeName,
         private readonly string $routeParameter,
-        private readonly Signer $encrypter,
+        private readonly Signer $signer,
+        private readonly bool $encryptedParameters = false,
     ) {
     }
 
@@ -39,13 +40,12 @@ final class ProxyExtension extends AbstractExtension
     }
 
     /** @param array<string, mixed> $options */
-    public function cdnPhp(string $file, array $options = [], bool $enableEncrypter = true): string
+    public function cdnPhp(string $file, array $options = [], ?bool $enableEncrypter = null): string
     {
         $options = Options::fromArray($options);
-        $queryParams = (true === $enableEncrypter)
-            ? '?' . $this->encrypter->sign($options)
-            : '?' . $options->buildQuery()
-        ;
+        $useEncrypter = $enableEncrypter ?? $this->encryptedParameters;
+        $query = true === $useEncrypter ? $this->signer->sign($options) : $options->buildQuery();
+        $queryParams = '' !== $query ? '?' . $query : '';
 
         return $this->router->generate(
             $this->routeName,

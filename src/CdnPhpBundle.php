@@ -80,6 +80,7 @@ class CdnPhpBundle extends AbstractBundle
             ->get(ProxyExtension::class)
                 ->arg('$routeName', $config['twig']['route_name'])
                 ->arg('$routeParameter', $config['twig']['route_parameter'])
+                ->arg('$encryptedParameters', $config['proxy']['encrypted_parameters'])
         ;
     }
 }

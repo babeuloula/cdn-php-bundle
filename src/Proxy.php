@@ -107,6 +107,6 @@ final class Proxy extends AbstractHandler
 
     private function exists(string $file): bool
     {
-        return $this->filesystem->exists($this->assetsPath . $this->normalizeFile($file));
+        return $this->filesystem->exists($this->assetsPath . $file);
     }
 }

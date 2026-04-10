@@ -26,8 +26,8 @@ final class Options
     private const DEFAULT_SIGNATURE = null;
 
     public function __construct(
-        public readonly null|int|string $width = self::DEFAULT_WIDTH,
-        public readonly null|int|string $height = self::DEFAULT_HEIGHT,
+        public readonly ?int $width = self::DEFAULT_WIDTH,
+        public readonly ?int $height = self::DEFAULT_HEIGHT,
         public readonly ?string $watermarkUrl = self::DEFAULT_WATERMARK_URL,
         public readonly string $watermarkGravity = self::DEFAULT_WATERMARK_POSITION,
         public readonly int $watermarkScale = self::DEFAULT_WATERMARK_SCALE,
@@ -86,9 +86,12 @@ final class Options
     /** @param array<int|string, mixed> $options */
     public static function fromArray(array $options): self
     {
+        $width = $options['width'] ?? $options['w'] ?? null;
+        $height = $options['height'] ?? $options['h'] ?? null;
+
         return new self(
-            $options['width'] ?? $options['w'] ?? self::DEFAULT_WIDTH,
-            $options['height'] ?? $options['h'] ?? self::DEFAULT_HEIGHT,
+            null !== $width ? (int) $width : self::DEFAULT_WIDTH,
+            null !== $height ? (int) $height : self::DEFAULT_HEIGHT,
             $options['watermarkUrl'] ?? $options['wu'] ?? $options['wat_url'] ?? self::DEFAULT_WATERMARK_URL,
             $options['watermarkPosition'] ?? $options['wp'] ?? $options['wat_position'] ?? self::DEFAULT_WATERMARK_POSITION,
             (int) ($options['watermarkScale'] ?? $options['ws'] ?? $options['wat_scale'] ?? self::DEFAULT_WATERMARK_SCALE),
