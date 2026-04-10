@@ -37,11 +37,19 @@
     },
     "require-dev": {
         "babeuloula/phpcs": "^1.5",
+        "babeuloula/phpunit-coverage-checker": "^1.0",
         "intervention/image": "^3.9",
         "phpstan/phpstan": "^1.12",
         "phpstan/phpstan-deprecation-rules": "^1.2",
+        "phpstan/phpstan-phpunit": "^1.0",
         "phpstan/phpstan-strict-rules": "^1.6",
-        "phpstan/phpstan-symfony": "^1.4"
+        "phpstan/phpstan-symfony": "^1.4",
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BaBeuloula\\CdnPhpBundle\\Tests\\": "tests/"
+        }
     },
     "suggest": {
         "intervention/image": "Needed to use InterventionImageFallback."

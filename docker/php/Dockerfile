@@ -1,6 +1,6 @@
 FROM php:8.2-cli
 
-ARG DOCKER_PHP_EXT=2.6.0
+ARG DOCKER_PHP_EXT=2.10.12
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/download/${DOCKER_PHP_EXT}/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions
 
@@ -24,6 +24,9 @@ RUN \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     truncate -s 0 /var/log/*log
+
+# Install PHP extensions
+RUN install-php-extensions gd imagick pcov
 
 # Install composer
 RUN \

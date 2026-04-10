@@ -49,7 +49,9 @@ final class InterventionImageFallbackHandler extends AbstractHandler implements 
             default => 'original',
         };
 
-        $cacheKey = sha1($file . '?' . $options?->buildQuery(false) . '.' . $formatKey);
+        $safeFile = (string) preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $file);
+        $optionsPart = null !== $options ? '_' . sha1($options->buildQuery(false)) : '';
+        $cacheKey = $safeFile . $optionsPart . '.' . $formatKey;
 
         /** @var array{content: string, mimetype: string} $encodedImage */
         $encodedImage = $this->cache->get(
