@@ -1,6 +1,6 @@
 -include docker/.env
 
-.SILENT: cache shell analyse
+.SILENT: cache shell analyse test coverage
 .DEFAULT_GOAL := help
 
 help:
@@ -44,7 +44,7 @@ cache:
 ## Code quality
 ##---------------------------------------------------------------------------
 
-check: lint analyse security
+check: lint analyse security test coverage
 
 lint: ## Execute PHPCS
 lint: cache
@@ -61,3 +61,11 @@ analyse: cache
 security: ## Check CVE for vendor dependencies
 security:
 	docker/exec composer audit
+
+test: ## Execute PHPUnit tests
+test: cache
+	docker/exec vendor/bin/phpunit --coverage-xml .cache/coverage/xml
+
+coverage: ## Check coverage threshold (95%)
+coverage:
+	docker/exec vendor/bin/coverage-checker .cache/coverage/xml/index.xml 75

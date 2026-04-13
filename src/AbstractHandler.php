@@ -31,7 +31,6 @@ abstract class AbstractHandler
     {
         $requestedHeaders = [
             'accept-language',
-            'accept-encoding',
             'accept',
             'user-agent',
         ];

@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace BaBeuloula\CdnPhpBundle;
 
-use Defuse\Crypto\Crypto;
-
 final class Signer
 {
     public function __construct(
@@ -40,12 +38,12 @@ final class Signer
 
     public function isValid(Options $options): bool
     {
-        return $this->calcSignature($options) === $options->signature;
+        return hash_equals($this->calcSignature($options), (string) $options->signature);
     }
 
     public function calcSignature(Options $options): string
     {
-        return sha1($options->buildQuery(false) . $this->getSecretKey());
+        return hash_hmac('sha256', $options->buildQuery(false), $this->getSecretKey());
     }
 
     public function isCdnSigningEnabled(): bool

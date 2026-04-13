@@ -43,24 +43,32 @@ final class InterventionImageFallbackHandler extends AbstractHandler implements 
     {
         $file = $this->normalizeFile($file);
 
-        try {
-            $image = $this->imageManager->read($this->assetsPath . $file);
-        } catch (DecoderException $e) {
-            throw new FileNotFoundException($file, previous: $e);
-        }
+        $formatKey = match (true) {
+            $this->supportsAvif($headers) => 'avif',
+            $this->supportsWebp($headers) => 'webp',
+            default => 'original',
+        };
 
-        $cacheKey = sha1($file . '?' . $options?->buildQuery());
+        $safeFile = (string) preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $file);
+        $optionsPart = null !== $options ? '_' . sha1($options->buildQuery(false)) : '';
+        $cacheKey = $safeFile . $optionsPart . '.' . $formatKey;
 
         /** @var array{content: string, mimetype: string} $encodedImage */
         $encodedImage = $this->cache->get(
             $cacheKey,
-            function (ItemInterface $item) use ($options, $image, $headers): array {
+            function (ItemInterface $item) use ($options, $file, $headers): array {
+                try {
+                    $image = $this->imageManager->read($this->assetsPath . $file);
+                } catch (DecoderException $e) {
+                    throw new FileNotFoundException($file, previous: $e);
+                }
+
                 if (null !== $options?->width && null !== $options->height) {
-                    $image->cover((int) $options->width, (int) $options->height);
+                    $image->cover($options->width, $options->height);
                 } elseif (null !== $options?->width) {
-                    $image->scale(width: (int) $options->width);
+                    $image->scale(width: $options->width);
                 } elseif (null !== $options?->height) {
-                    $image->scale(height: (int) $options->height);
+                    $image->scale(height: $options->height);
                 }
 
                 $item->expiresAfter($this->cacheLifetime);
@@ -81,10 +89,7 @@ final class InterventionImageFallbackHandler extends AbstractHandler implements 
         return new Response(
             $encodedImage['content'],
             Response::HTTP_OK,
-            array_merge_recursive(
-                $headers,
-                ['Content-Type' => $encodedImage['mimetype']],
-            ),
+            array_replace($headers, ['Content-Type' => $encodedImage['mimetype']]),
         );
     }
 
