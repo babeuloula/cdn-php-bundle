@@ -24,6 +24,7 @@ final class Options
     private const DEFAULT_WATERMARK_SCALE = 75;
     private const DEFAULT_WATERMARK_OPACITY = 50;
     private const DEFAULT_SIGNATURE = null;
+    private const DEFAULT_VERSION = null;
 
     public function __construct(
         public readonly ?int $width = self::DEFAULT_WIDTH,
@@ -33,6 +34,7 @@ final class Options
         public readonly int $watermarkScale = self::DEFAULT_WATERMARK_SCALE,
         public readonly int $watermarkOpacity = self::DEFAULT_WATERMARK_OPACITY,
         public readonly ?string $signature = self::DEFAULT_SIGNATURE,
+        public readonly ?string $version = self::DEFAULT_VERSION,
     ) {
     }
 
@@ -47,6 +49,7 @@ final class Options
         $options = [
             'w' => $this->width,
             'h' => $this->height,
+            'v' => $this->version,
         ];
 
         if (true === $withSignature) {
@@ -97,6 +100,7 @@ final class Options
             (int) ($options['watermarkScale'] ?? $options['ws'] ?? $options['wat_scale'] ?? self::DEFAULT_WATERMARK_SCALE),
             (int) ($options['watermarkOpacity'] ?? $options['wo'] ?? $options['wat_opacity'] ?? self::DEFAULT_WATERMARK_OPACITY),
             $options[self::SIGNATURE_KEY] ?? self::DEFAULT_SIGNATURE,
+            $options['version'] ?? $options['v'] ?? self::DEFAULT_VERSION,
         );
     }
 }

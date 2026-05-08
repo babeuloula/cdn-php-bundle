@@ -161,4 +161,43 @@ final class OptionsTest extends TestCase
         self::assertSame(200, $options->width);
         self::assertSame(100, $options->height);
     }
+
+    public function testToArrayIncludesVersionWhenSet(): void
+    {
+        $result = (new Options(version: '2'))->toArray();
+        self::assertArrayHasKey('v', $result);
+        self::assertSame('2', $result['v']);
+    }
+
+    public function testToArrayExcludesVersionWhenNull(): void
+    {
+        $result = (new Options())->toArray();
+        self::assertArrayNotHasKey('v', $result);
+    }
+
+    public function testBuildQueryWithVersion(): void
+    {
+        self::assertSame('w=200&v=2', (new Options(200, version: '2'))->buildQuery(false));
+    }
+
+    public function testFromArrayWithVersionShortAlias(): void
+    {
+        $options = Options::fromArray(['v' => '2']);
+        self::assertSame('2', $options->version);
+    }
+
+    public function testFromArrayWithVersionLongAlias(): void
+    {
+        $options = Options::fromArray(['version' => '2']);
+        self::assertSame('2', $options->version);
+    }
+
+    public function testSetSignaturePreservesVersion(): void
+    {
+        $original = new Options(200, version: 'abc');
+        $new = $original->setSignature('xyz');
+
+        self::assertSame('abc', $new->version);
+        self::assertSame(200, $new->width);
+    }
 }
