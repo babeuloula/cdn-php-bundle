@@ -35,6 +35,7 @@ class CdnPhpBundle extends AbstractBundle
                         ->scalarNode('url')->isRequired()->end()
                         ->booleanNode('check_assets')->defaultTrue()->end()
                         ->booleanNode('encrypted_parameters')->defaultFalse()->end()
+                        ->scalarNode('cors_allow_origin')->defaultValue('*')->end()
                     ->end()
                 ->end() // proxy
                 ->arrayNode('encrypter')->addDefaultsIfNotSet()
@@ -66,6 +67,7 @@ class CdnPhpBundle extends AbstractBundle
                 ->arg('$assetsPath', $config['proxy']['assets_path'])
                 ->arg('$checkAssets', $config['proxy']['check_assets'])
                 ->arg('$cdnPhpUrl', $config['proxy']['url'])
+                ->arg('$corsAllowOrigin', $config['proxy']['cors_allow_origin'])
         ;
 
         $container->services()
