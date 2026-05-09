@@ -76,6 +76,8 @@ final class ProxyTest extends TestCase
                         'x-content-type-options' => ['nosniff'],
                         'x-dominant-color' => ['#ff0000'],
                         'x-custom-header' => ['custom-value'],
+                        'cf-cache-status' => ['HIT'],
+                        'cf-ray' => ['abc123-CDG'],
                     ],
                 ]
             )
@@ -91,6 +93,8 @@ final class ProxyTest extends TestCase
         self::assertSame('nosniff', $response->headers->get('x-content-type-options'));
         self::assertSame('#ff0000', $response->headers->get('x-dominant-color'));
         self::assertSame('custom-value', $response->headers->get('x-custom-header'));
+        self::assertSame('HIT', $response->headers->get('cf-cache-status'));
+        self::assertSame('abc123-CDG', $response->headers->get('cf-ray'));
     }
 
     public function testResponseSetsNoCacheControlHeader(): void
@@ -131,6 +135,26 @@ final class ProxyTest extends TestCase
         $response = $this->makeProxy($client)->response('image.jpg');
 
         self::assertSame('my-value', $response->headers->get('x-my-custom'));
+    }
+
+    public function testResponseForwardsAllCfPrefixedHeaders(): void
+    {
+        $client = new MockHttpClient(
+            new MockResponse(
+                'content',
+                [
+                    'response_headers' => [
+                        'cf-cache-status' => ['MISS'],
+                        'cf-ray' => ['xyz789-LHR'],
+                    ],
+                ]
+            )
+        );
+
+        $response = $this->makeProxy($client)->response('image.jpg');
+
+        self::assertSame('MISS', $response->headers->get('cf-cache-status'));
+        self::assertSame('xyz789-LHR', $response->headers->get('cf-ray'));
     }
 
     public function testResponseNormalizesFileStrippingLeadingSlash(): void

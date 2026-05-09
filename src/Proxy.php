@@ -88,7 +88,7 @@ final class Proxy extends AbstractHandler
             }
 
             foreach ($responseHeaders as $header => $values) {
-                if (true === str_starts_with($header, 'x-')) {
+                if (true === str_starts_with($header, 'x-') || true === str_starts_with($header, 'cf-')) {
                     $newResponse->headers->set($header, $values);
                 }
             }
