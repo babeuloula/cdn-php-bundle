@@ -68,25 +68,29 @@ final class Proxy extends AbstractHandler
 
             $newResponse->setContent($response->getContent());
 
-            $copiedHeaders = [
+            $standardHeaders = [
                 'last-modified',
                 'expires',
                 'etag',
                 'cache-control',
-                'content-encoding',
                 'content-type',
-                'content-length',
                 'vary',
-                'x-content-type-options',
-                'x-dominant-color',
             ];
 
-            foreach ($copiedHeaders as $header) {
-                if (false === \array_key_exists($header, $response->getHeaders())) {
+            $responseHeaders = $response->getHeaders();
+
+            foreach ($standardHeaders as $header) {
+                if (false === \array_key_exists($header, $responseHeaders)) {
                     continue;
                 }
 
-                $newResponse->headers->set($header, $response->getHeaders()[$header]);
+                $newResponse->headers->set($header, $responseHeaders[$header]);
+            }
+
+            foreach ($responseHeaders as $header => $values) {
+                if (true === str_starts_with($header, 'x-')) {
+                    $newResponse->headers->set($header, $values);
+                }
             }
 
             $newResponse->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, 'true');

@@ -75,6 +75,7 @@ final class ProxyTest extends TestCase
                         'vary' => ['Accept'],
                         'x-content-type-options' => ['nosniff'],
                         'x-dominant-color' => ['#ff0000'],
+                        'x-custom-header' => ['custom-value'],
                     ],
                 ]
             )
@@ -89,6 +90,7 @@ final class ProxyTest extends TestCase
         self::assertSame('"abc123"', $response->headers->get('etag'));
         self::assertSame('nosniff', $response->headers->get('x-content-type-options'));
         self::assertSame('#ff0000', $response->headers->get('x-dominant-color'));
+        self::assertSame('custom-value', $response->headers->get('x-custom-header'));
     }
 
     public function testResponseSetsNoCacheControlHeader(): void
@@ -99,20 +101,36 @@ final class ProxyTest extends TestCase
         self::assertSame('true', $response->headers->get(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER));
     }
 
-    public function testResponseIgnoresNonWhitelistedHeaders(): void
+    public function testResponseIgnoresNonXNonWhitelistedHeaders(): void
     {
         $client = new MockHttpClient(
             new MockResponse(
                 'content',
                 [
-                    'response_headers' => ['x-secret' => ['value']],
+                    'response_headers' => ['server' => ['Apache']],
                 ]
             )
         );
 
         $response = $this->makeProxy($client)->response('image.jpg');
 
-        self::assertFalse($response->headers->has('x-secret'));
+        self::assertFalse($response->headers->has('server'));
+    }
+
+    public function testResponseForwardsAllXPrefixedHeaders(): void
+    {
+        $client = new MockHttpClient(
+            new MockResponse(
+                'content',
+                [
+                    'response_headers' => ['x-my-custom' => ['my-value']],
+                ]
+            )
+        );
+
+        $response = $this->makeProxy($client)->response('image.jpg');
+
+        self::assertSame('my-value', $response->headers->get('x-my-custom'));
     }
 
     public function testResponseNormalizesFileStrippingLeadingSlash(): void
