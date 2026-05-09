@@ -46,6 +46,7 @@ final class ProxyTest extends TestCase
         bool $checkAssets = false,
         ?FallbackHandlerInterface $fallback = null,
         ?Signer $signer = null,
+        ?string $corsAllowOrigin = '*',
     ): Proxy {
         return new Proxy(
             self::ASSETS_PATH,
@@ -54,6 +55,7 @@ final class ProxyTest extends TestCase
             $client,
             self::CDN_URL,
             $signer ?? new Signer(),
+            $corsAllowOrigin,
             $fallback,
         );
     }
@@ -135,6 +137,58 @@ final class ProxyTest extends TestCase
         $response = $this->makeProxy($client)->response('image.jpg');
 
         self::assertSame('my-value', $response->headers->get('x-my-custom'));
+    }
+
+    public function testResponseForwardsAccessControlHeadersFromCdn(): void
+    {
+        $client = new MockHttpClient(
+            new MockResponse(
+                'font-content',
+                [
+                    'response_headers' => [
+                        'access-control-allow-origin' => ['https://example.com'],
+                        'access-control-expose-headers' => ['Content-Length'],
+                    ],
+                ]
+            )
+        );
+
+        $response = $this->makeProxy($client, corsAllowOrigin: null)->response('font.woff2');
+
+        self::assertSame('https://example.com', $response->headers->get('access-control-allow-origin'));
+        self::assertSame('Content-Length', $response->headers->get('access-control-expose-headers'));
+    }
+
+    public function testResponseSetsCorsAllowOriginWhenConfigured(): void
+    {
+        $client = new MockHttpClient(new MockResponse('font-content'));
+
+        $response = $this->makeProxy($client, corsAllowOrigin: '*')->response('font.woff2');
+
+        self::assertSame('*', $response->headers->get('access-control-allow-origin'));
+    }
+
+    public function testResponseDoesNotSetCorsHeaderWhenCorsAllowOriginIsNull(): void
+    {
+        $client = new MockHttpClient(new MockResponse('font-content'));
+
+        $response = $this->makeProxy($client, corsAllowOrigin: null)->response('font.woff2');
+
+        self::assertFalse($response->headers->has('access-control-allow-origin'));
+    }
+
+    public function testConfiguredCorsOriginOverridesCdnCorsHeader(): void
+    {
+        $client = new MockHttpClient(
+            new MockResponse(
+                'font-content',
+                ['response_headers' => ['access-control-allow-origin' => ['https://cdn.example.com']]]
+            )
+        );
+
+        $response = $this->makeProxy($client, corsAllowOrigin: '*')->response('font.woff2');
+
+        self::assertSame('*', $response->headers->get('access-control-allow-origin'));
     }
 
     public function testResponseForwardsAllCfPrefixedHeaders(): void

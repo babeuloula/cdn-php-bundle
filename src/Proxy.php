@@ -32,6 +32,7 @@ final class Proxy extends AbstractHandler
         private readonly HttpClientInterface $client,
         private readonly string $cdnPhpUrl,
         private readonly Signer $signer,
+        private readonly ?string $corsAllowOrigin = null,
         private readonly ?FallbackHandlerInterface $fallbackHandler = null,
     ) {
         parent::__construct($assetsPath);
@@ -88,9 +89,16 @@ final class Proxy extends AbstractHandler
             }
 
             foreach ($responseHeaders as $header => $values) {
-                if (true === str_starts_with($header, 'x-') || true === str_starts_with($header, 'cf-')) {
+                if (true === str_starts_with($header, 'x-')
+                    || true === str_starts_with($header, 'cf-')
+                    || true === str_starts_with($header, 'access-control-')
+                ) {
                     $newResponse->headers->set($header, $values);
                 }
+            }
+
+            if (null !== $this->corsAllowOrigin) {
+                $newResponse->headers->set('Access-Control-Allow-Origin', $this->corsAllowOrigin);
             }
 
             $newResponse->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, 'true');
